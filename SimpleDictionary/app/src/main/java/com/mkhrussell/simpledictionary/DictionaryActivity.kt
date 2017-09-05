@@ -34,10 +34,9 @@ class DictionaryActivity : AppCompatActivity() {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_dictionary, menu)
 
-        val searchView: SearchView? = menu.findItem(R.id.action_search) as? SearchView
+        val searchView: SearchView? = menu.findItem(R.id.action_search).actionView as? SearchView
         val searchManager: SearchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
         searchView?.setSearchableInfo(searchManager.getSearchableInfo(componentName))
-        searchView?.isSubmitButtonEnabled = true
 
         return true
     }
