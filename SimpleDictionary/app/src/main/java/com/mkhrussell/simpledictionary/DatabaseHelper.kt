@@ -2,12 +2,14 @@ package com.mkhrussell.simpledictionary
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 
 class DatabaseHelper(private var mContext: Context) : SQLiteOpenHelper(mContext, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
-        private val DATABASE_NAME = "simple_dict2.db"
+        private val DATABASE_NAME = "simple_dict.db"
         private val DATABASE_VERSION = 1
 
         val TABLE_NAME = "english_words"
@@ -34,10 +36,23 @@ class DatabaseHelper(private var mContext: Context) : SQLiteOpenHelper(mContext,
 
         val contentValues = ContentValues()
         contentValues.put(COLUMN_ID, 1)
-        contentValues.put(COLUMN_WORD, "b")
+        contentValues.put(COLUMN_WORD, "a")
         contentValues.put(COLUMN_TYPE, "noun")
-        contentValues.put(COLUMN_MEANING, "Second letter of english alphabet.")
+        contentValues.put(COLUMN_MEANING, "First letter of english alphabet.")
 
         this.writableDatabase.insert(TABLE_NAME, null, contentValues)
+    }
+
+    fun getWords() {
+        val cursor: Cursor = readableDatabase.rawQuery("select * from $TABLE_NAME", null)
+
+        while (cursor.moveToNext()) {
+            val id = cursor.getInt(0)
+            val word = cursor.getString(1)
+            val type = cursor.getString(2)
+            val meaning = cursor.getString(3)
+
+            Log.d("DictionaryActivity", "$id, $word, $type, $meaning")
+        }
     }
 }
