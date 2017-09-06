@@ -10,6 +10,7 @@ import android.support.v7.widget.SearchView
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ListView
 
 class DictionaryActivity : AppCompatActivity() {
 
@@ -22,7 +23,10 @@ class DictionaryActivity : AppCompatActivity() {
 
         val dbHelper = DatabaseHelper(applicationContext)
         //dbHelper.addWord()
-        dbHelper.getWords()
+        //dbHelper.getWords()
+
+        val lstWords = findViewById<ListView>(R.id.lstWords)
+        lstWords.adapter = SearchListAdapter(applicationContext, dbHelper.getWords())
     }
 
     override fun onNewIntent(intent: Intent?) {

@@ -43,16 +43,18 @@ class DatabaseHelper(private var mContext: Context) : SQLiteOpenHelper(mContext,
         this.writableDatabase.insert(TABLE_NAME, null, contentValues)
     }
 
-    fun getWords() {
+    fun getWords(): Cursor {
         val cursor: Cursor = readableDatabase.rawQuery("select * from $TABLE_NAME", null)
 
-        while (cursor.moveToNext()) {
-            val id = cursor.getInt(0)
-            val word = cursor.getString(1)
-            val type = cursor.getString(2)
-            val meaning = cursor.getString(3)
+//        while (cursor.moveToNext()) {
+//            val id = cursor.getInt(0)
+//            val word = cursor.getString(1)
+//            val type = cursor.getString(2)
+//            val meaning = cursor.getString(3)
+//
+//            Log.d("DictionaryActivity", "$id, $word, $type, $meaning")
+//        }
 
-            Log.d("DictionaryActivity", "$id, $word, $type, $meaning")
-        }
+        return cursor
     }
 }
