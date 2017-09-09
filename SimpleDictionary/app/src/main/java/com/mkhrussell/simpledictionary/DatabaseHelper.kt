@@ -30,31 +30,29 @@ class DatabaseHelper(private var mContext: Context) : SQLiteOpenHelper(mContext,
         onCreate(db)
     }
 
-    fun addWord() {
+    fun addSomeDummyWords() {
 
-        // insert into english_words values(1, 'a', 'noun', 'First letter of english alphabet.');
+        val dummyWords = arrayOf("a", "apple", "b", "ball", "c", "cat", "d", "dog", "e", "eagle", "f", "fox", "g", "gun", "h", "hat", "i", "ink", "j", "jug", "k", "kite", "l", "light")
 
         val contentValues = ContentValues()
-        contentValues.put(COLUMN_ID, 1)
-        contentValues.put(COLUMN_WORD, "a")
-        contentValues.put(COLUMN_TYPE, "noun")
-        contentValues.put(COLUMN_MEANING, "First letter of english alphabet.")
+        var id = 1
 
-        this.writableDatabase.insert(TABLE_NAME, null, contentValues)
+        for(word in dummyWords) {
+            contentValues.put(COLUMN_ID, id)
+            contentValues.put(COLUMN_WORD, word)
+            contentValues.put(COLUMN_TYPE, "noun")
+            contentValues.put(COLUMN_MEANING, "This is an English word.")
+            this.writableDatabase.insert(TABLE_NAME, null, contentValues)
+
+            id++
+        }
     }
 
-    fun getWords(): Cursor {
-        val cursor: Cursor = readableDatabase.rawQuery("select * from $TABLE_NAME", null)
-
-//        while (cursor.moveToNext()) {
-//            val id = cursor.getInt(0)
-//            val word = cursor.getString(1)
-//            val type = cursor.getString(2)
-//            val meaning = cursor.getString(3)
-//
-//            Log.d("DictionaryActivity", "$id, $word, $type, $meaning")
-//        }
-
-        return cursor
+    fun getWords(wordPrefix: String = ""): Cursor {
+        if(wordPrefix.isBlank()) {
+            return readableDatabase.rawQuery("select * from $TABLE_NAME", null)
+        } else {
+            return readableDatabase.rawQuery("select * from $TABLE_NAME where word like '$wordPrefix%'", null)
+        }
     }
 }

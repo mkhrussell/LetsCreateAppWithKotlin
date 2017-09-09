@@ -13,6 +13,8 @@ import android.view.MenuItem
 import android.widget.ListView
 
 class DictionaryActivity : AppCompatActivity() {
+    var mDbHelper: DatabaseHelper? = null
+    var mSearchListAdapter: SearchListAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,12 +23,11 @@ class DictionaryActivity : AppCompatActivity() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        val dbHelper = DatabaseHelper(applicationContext)
-        //dbHelper.addWord()
-        //dbHelper.getWords()
+        mDbHelper = DatabaseHelper(applicationContext)
+        //mDbHelper?.addSomeDummyWords() // Added dummy words to database
 
-        val lstWords = findViewById<ListView>(R.id.lstWords)
-        lstWords.adapter = SearchListAdapter(applicationContext, dbHelper.getWords())
+        mSearchListAdapter = SearchListAdapter(applicationContext, mDbHelper!!.getWords())
+        (findViewById<ListView>(R.id.lstWords)).adapter = mSearchListAdapter
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -34,7 +35,8 @@ class DictionaryActivity : AppCompatActivity() {
 
         if(intent?.action.equals(Intent.ACTION_SEARCH)) {
             val searchQuery = intent?.getStringExtra(SearchManager.QUERY) ?: ""
-            Log.d("DictionaryActivity", "searchQuery = $searchQuery")
+
+            mSearchListAdapter?.changeCursor(mDbHelper!!.getWords(searchQuery))
         }
     }
 
@@ -45,6 +47,19 @@ class DictionaryActivity : AppCompatActivity() {
         val searchView: SearchView? = menu.findItem(R.id.action_search).actionView as? SearchView
         val searchManager: SearchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
         searchView?.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+
+        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+
+                mSearchListAdapter?.changeCursor(mDbHelper!!.getWords(newText ?: ""))
+
+                return true
+            }
+        })
 
         return true
     }
