@@ -10,6 +10,8 @@ import android.support.v7.widget.SearchView
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.AdapterView
 import android.widget.ListView
 
 class DictionaryActivity : AppCompatActivity() {
@@ -27,7 +29,12 @@ class DictionaryActivity : AppCompatActivity() {
         //mDbHelper?.addSomeDummyWords() // Added dummy words to database
 
         mSearchListAdapter = SearchListAdapter(applicationContext, mDbHelper!!.getWords())
-        (findViewById<ListView>(R.id.lstWords)).adapter = mSearchListAdapter
+        val lstWords = (findViewById<ListView>(R.id.lstWords))
+        lstWords.adapter = mSearchListAdapter
+        lstWords.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
+            Log.d("DictionaryActivity", "$parent\n $view\n $position\n $id")
+
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {
