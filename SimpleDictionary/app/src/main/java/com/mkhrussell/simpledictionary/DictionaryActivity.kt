@@ -32,8 +32,11 @@ class DictionaryActivity : AppCompatActivity() {
         val lstWords = (findViewById<ListView>(R.id.lstWords))
         lstWords.adapter = mSearchListAdapter
         lstWords.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
-            Log.d("DictionaryActivity", "$parent\n $view\n $position\n $id")
+            //Log.d("DictionaryActivity", "$parent\n $view\n $position\n $id")
 
+            val wordDetailIntent = Intent(applicationContext, WordDetailActivity::class.java)
+            wordDetailIntent.putExtra(WordDetailActivity.WORD_ID, "$id")
+            startActivity(wordDetailIntent)
         }
     }
 

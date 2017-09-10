@@ -55,4 +55,8 @@ class DatabaseHelper(private var mContext: Context) : SQLiteOpenHelper(mContext,
             return readableDatabase.rawQuery("select * from $TABLE_NAME where word like '$wordPrefix%'", null)
         }
     }
+
+    fun getWord(id: String): Cursor {
+        return readableDatabase.rawQuery("select * from $TABLE_NAME where $COLUMN_ID=$id", null)
+    }
 }
