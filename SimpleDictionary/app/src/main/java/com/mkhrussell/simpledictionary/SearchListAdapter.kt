@@ -2,6 +2,7 @@ package com.mkhrussell.simpledictionary
 
 import android.content.Context
 import android.database.Cursor
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,5 +25,17 @@ class SearchListAdapter(context: Context, cursor: Cursor) : CursorAdapter(contex
         txtWord?.text = cursor?.getString(1)
         txtType?.text = cursor?.getString(2)
         txtMeaning?.text = cursor?.getString(3)
+    }
+
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+        val view = super.getView(position, convertView, parent)
+
+        if(position % 2 == 0) {
+            view.setBackgroundColor(Color.LTGRAY)
+        } else {
+            view.setBackgroundColor(Color.WHITE)
+        }
+
+        return view;
     }
 }
