@@ -25,6 +25,8 @@ class DictionaryActivity : AppCompatActivity() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
 
+        supportActionBar?.setIcon(R.mipmap.ic_launcher)
+
         mDbHelper = DatabaseHelper(applicationContext)
         //mDbHelper?.addSomeDummyWords() // Added dummy words to database
 
