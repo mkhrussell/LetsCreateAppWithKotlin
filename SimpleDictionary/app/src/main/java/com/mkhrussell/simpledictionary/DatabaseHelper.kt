@@ -11,21 +11,14 @@ class DatabaseHelper(private var mContext: Context) : SQLiteOpenHelper(mContext,
     companion object {
         private val DATABASE_NAME = "simple_dict.db"
         private val DATABASE_VERSION = 1
-
-        val TABLE_NAME = "english_words"
-
-        val COLUMN_ID = "_id"
-        val COLUMN_WORD = "word"
-        val COLUMN_TYPE = "type"
-        val COLUMN_MEANING = "meaning"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
-        db?.execSQL("create table $TABLE_NAME ($COLUMN_ID INT, $COLUMN_WORD TEXT, $COLUMN_TYPE TEXT, $COLUMN_MEANING TEXT)");
+        db?.execSQL("create table ${DictionaryEntryContract.TABLE_NAME} (${DictionaryEntryContract.COLUMN_ID} INT, ${DictionaryEntryContract.COLUMN_WORD} TEXT, ${DictionaryEntryContract.COLUMN_TYPE} TEXT, ${DictionaryEntryContract.COLUMN_MEANING} TEXT)");
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        db?.execSQL("drop table if exist $TABLE_NAME")
+        db?.execSQL("drop table if exist ${DictionaryEntryContract.TABLE_NAME}")
 
         onCreate(db)
     }
@@ -38,11 +31,11 @@ class DatabaseHelper(private var mContext: Context) : SQLiteOpenHelper(mContext,
         var id = 1
 
         for(word in dummyWords) {
-            contentValues.put(COLUMN_ID, id)
-            contentValues.put(COLUMN_WORD, word)
-            contentValues.put(COLUMN_TYPE, "noun")
-            contentValues.put(COLUMN_MEANING, "This is an English word.")
-            this.writableDatabase.insert(TABLE_NAME, null, contentValues)
+            contentValues.put(DictionaryEntryContract.COLUMN_ID, id)
+            contentValues.put(DictionaryEntryContract.COLUMN_WORD, word)
+            contentValues.put(DictionaryEntryContract.COLUMN_TYPE, "noun")
+            contentValues.put(DictionaryEntryContract.COLUMN_MEANING, "This is an English word.")
+            this.writableDatabase.insert(DictionaryEntryContract.TABLE_NAME, null, contentValues)
 
             id++
         }
@@ -50,13 +43,13 @@ class DatabaseHelper(private var mContext: Context) : SQLiteOpenHelper(mContext,
 
     fun getWords(wordPrefix: String = ""): Cursor {
         if(wordPrefix.isBlank()) {
-            return readableDatabase.rawQuery("select * from $TABLE_NAME", null)
+            return readableDatabase.query(DictionaryEntryContract.TABLE_NAME, null, null, null, null, null, "${DictionaryEntryContract.COLUMN_ID} ASC")
         } else {
-            return readableDatabase.rawQuery("select * from $TABLE_NAME where word like '$wordPrefix%'", null)
+            return readableDatabase.query(DictionaryEntryContract.TABLE_NAME, null, "${DictionaryEntryContract.COLUMN_WORD} like ?", arrayOf("$wordPrefix%"), null, null, "${DictionaryEntryContract.COLUMN_ID} ASC")
         }
     }
 
     fun getWord(id: String): Cursor {
-        return readableDatabase.rawQuery("select * from $TABLE_NAME where $COLUMN_ID=$id", null)
+        return readableDatabase.query(DictionaryEntryContract.TABLE_NAME, null, "${DictionaryEntryContract.COLUMN_ID}= ?", arrayOf("$id"), null, null, null)
     }
 }
