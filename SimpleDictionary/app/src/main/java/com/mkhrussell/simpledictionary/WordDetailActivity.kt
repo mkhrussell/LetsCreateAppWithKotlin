@@ -26,9 +26,9 @@ class WordDetailActivity : AppCompatActivity() {
             val txtType = findViewById<TextView>(R.id.txtType)
             val txtMeaning = findViewById<TextView>(R.id.txtMeaning)
 
-            txtWord?.text = cursor.getString(1)
-            txtType?.text = cursor.getString(2)
-            txtMeaning?.text = cursor.getString(3)
+            txtWord?.text = cursor.getString(cursor.getColumnIndexOrThrow(DictionaryEntryContract.COLUMN_WORD))
+            txtType?.text = cursor.getString(cursor.getColumnIndexOrThrow(DictionaryEntryContract.COLUMN_TYPE))
+            txtMeaning?.text = cursor.getString(cursor.getColumnIndexOrThrow(DictionaryEntryContract.COLUMN_MEANING))
         }
     }
 }

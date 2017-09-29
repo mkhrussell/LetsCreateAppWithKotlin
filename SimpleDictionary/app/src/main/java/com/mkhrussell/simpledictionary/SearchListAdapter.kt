@@ -24,7 +24,7 @@ class SearchListAdapter(context: Context, cursor: Cursor) : CursorAdapter(contex
         val layoutInflater = LayoutInflater.from(context)
         val newView = layoutInflater.inflate(R.layout.search_list_item, parent, false)
 
-        val viewHolder = ViewHolder();
+        val viewHolder = ViewHolder()
         viewHolder.txtWord = newView.findViewById<TextView>(R.id.txtWord)
         viewHolder.txtType = newView.findViewById<TextView>(R.id.txtType)
         viewHolder.txtMeaning = newView.findViewById<TextView>(R.id.txtMeaning)

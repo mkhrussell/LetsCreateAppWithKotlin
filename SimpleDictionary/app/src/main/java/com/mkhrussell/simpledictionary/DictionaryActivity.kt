@@ -4,6 +4,7 @@ import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.support.v7.widget.SearchView
@@ -15,8 +16,13 @@ import android.widget.AdapterView
 import android.widget.ListView
 
 class DictionaryActivity : AppCompatActivity() {
+    companion object {
+        val LAST_SEARCH_WORD: String = "LAST_SEARCH_WORD"
+    }
+
     var mDbHelper: DatabaseHelper? = null
     var mSearchListAdapter: SearchListAdapter? = null
+    var mSearchQuery: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +36,9 @@ class DictionaryActivity : AppCompatActivity() {
         mDbHelper = DatabaseHelper(applicationContext)
         //mDbHelper?.addSomeDummyWords() // Added dummy words to database
 
-        mSearchListAdapter = SearchListAdapter(applicationContext, mDbHelper!!.getWords())
+        mSearchQuery = savedInstanceState?.getString(LAST_SEARCH_WORD) ?: ""
+
+        mSearchListAdapter = SearchListAdapter(applicationContext, mDbHelper!!.getWords(mSearchQuery))
         val lstWords = (findViewById<ListView>(R.id.lstWords))
         lstWords.adapter = mSearchListAdapter
         lstWords.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
@@ -42,13 +50,23 @@ class DictionaryActivity : AppCompatActivity() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        outState?.putString(LAST_SEARCH_WORD, mSearchQuery)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+        mSearchQuery = savedInstanceState?.getString(LAST_SEARCH_WORD) ?: ""
+        super.onRestoreInstanceState(savedInstanceState)
+    }
+
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
 
         if(intent?.action.equals(Intent.ACTION_SEARCH)) {
             val searchQuery = intent?.getStringExtra(SearchManager.QUERY) ?: ""
 
-            mSearchListAdapter?.changeCursor(mDbHelper!!.getWords(searchQuery))
+            updateListByQuery(searchQuery)
         }
     }
 
@@ -67,13 +85,18 @@ class DictionaryActivity : AppCompatActivity() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
 
-                mSearchListAdapter?.changeCursor(mDbHelper!!.getWords(newText ?: ""))
+                updateListByQuery(newText ?: "")
 
                 return true
             }
         })
 
         return true
+    }
+
+    private fun updateListByQuery(searchQuery: String) {
+        mSearchQuery = searchQuery
+        mSearchListAdapter?.changeCursor(mDbHelper!!.getWords(searchQuery))
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
