@@ -14,7 +14,12 @@ class DatabaseHelper(private var mContext: Context) : SQLiteOpenHelper(mContext,
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
-        db?.execSQL("create table ${DictionaryEntryContract.TABLE_NAME} (${DictionaryEntryContract.COLUMN_ID} INT, ${DictionaryEntryContract.COLUMN_WORD} TEXT, ${DictionaryEntryContract.COLUMN_TYPE} TEXT, ${DictionaryEntryContract.COLUMN_MEANING} TEXT)");
+        db?.execSQL("create table ${DictionaryEntryContract.TABLE_NAME} ( " +
+                "${DictionaryEntryContract.COLUMN_ID} INT, " +
+                "${DictionaryEntryContract.COLUMN_WORD} TEXT, " +
+                "${DictionaryEntryContract.COLUMN_TYPE} TEXT, " +
+                "${DictionaryEntryContract.COLUMN_MEANING} TEXT " +
+                ")");
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -25,7 +30,8 @@ class DatabaseHelper(private var mContext: Context) : SQLiteOpenHelper(mContext,
 
     fun addSomeDummyWords() {
 
-        val dummyWords = arrayOf("a", "apple", "b", "ball", "c", "cat", "d", "dog", "e", "eagle", "f", "fox", "g", "gun", "h", "hat", "i", "ink", "j", "jug", "k", "kite", "l", "light")
+        val dummyWords = arrayOf("a", "apple", "b", "ball", "c", "cat", "d", "dog", "e", "eagle",
+                "f", "fox", "g", "gun", "h", "hat", "i", "ink", "j", "jug", "k", "kite", "l", "light")
 
         val contentValues = ContentValues()
         var id = 1
@@ -43,13 +49,19 @@ class DatabaseHelper(private var mContext: Context) : SQLiteOpenHelper(mContext,
 
     fun getWords(wordPrefix: String = ""): Cursor {
         if(wordPrefix.isBlank()) {
-            return readableDatabase.query(DictionaryEntryContract.TABLE_NAME, null, null, null, null, null, "${DictionaryEntryContract.COLUMN_ID} ASC")
+            return readableDatabase.query(DictionaryEntryContract.TABLE_NAME, null,
+                    null, null, null, null,
+                    "${DictionaryEntryContract.COLUMN_ID} ASC")
         } else {
-            return readableDatabase.query(DictionaryEntryContract.TABLE_NAME, null, "${DictionaryEntryContract.COLUMN_WORD} like ?", arrayOf("$wordPrefix%"), null, null, "${DictionaryEntryContract.COLUMN_ID} ASC")
+            return readableDatabase.query(DictionaryEntryContract.TABLE_NAME, null,
+                    "${DictionaryEntryContract.COLUMN_WORD} LIKE ?", arrayOf("$wordPrefix%"),
+                    null, null, "${DictionaryEntryContract.COLUMN_ID} ASC")
         }
     }
 
     fun getWord(id: String): Cursor {
-        return readableDatabase.query(DictionaryEntryContract.TABLE_NAME, null, "${DictionaryEntryContract.COLUMN_ID}= ?", arrayOf("$id"), null, null, null)
+        return readableDatabase.query(DictionaryEntryContract.TABLE_NAME, null,
+                "${DictionaryEntryContract.COLUMN_ID}= ?", arrayOf(id),
+                null, null, null)
     }
 }
