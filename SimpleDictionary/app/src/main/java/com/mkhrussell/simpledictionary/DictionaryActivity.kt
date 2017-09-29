@@ -17,6 +17,7 @@ import android.widget.ListView
 
 class DictionaryActivity : AppCompatActivity() {
     companion object {
+        val TAG = "DictionaryActivity"
         val LAST_SEARCH_WORD: String = "LAST_SEARCH_WORD"
     }
 
@@ -34,6 +35,9 @@ class DictionaryActivity : AppCompatActivity() {
         supportActionBar?.setIcon(R.mipmap.ic_launcher)
 
         mDbHelper = DatabaseHelper(applicationContext)
+        if(mDbHelper?.readableDatabase?.isOpen == true) {
+            Log.d(TAG, "Db is OK.")
+        }
         //mDbHelper?.addSomeDummyWords() // Added dummy words to database
 
         mSearchQuery = savedInstanceState?.getString(LAST_SEARCH_WORD) ?: ""
