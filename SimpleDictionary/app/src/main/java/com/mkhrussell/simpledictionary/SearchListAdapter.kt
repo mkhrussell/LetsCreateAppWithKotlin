@@ -10,21 +10,40 @@ import android.widget.CursorAdapter
 import android.widget.TextView
 
 class SearchListAdapter(context: Context, cursor: Cursor) : CursorAdapter(context, cursor, 0) {
+    private class ViewHolder {
+        var txtWord: TextView? = null
+        var txtType: TextView? = null
+        var txtMeaning: TextView? = null
+
+        var wordColumnIndex: Int = 0
+        var typeColumnIndex: Int = 0
+        var meaningColumnIndex: Int = 0
+    }
 
     override fun newView(context: Context?, cursor: Cursor?, parent: ViewGroup?): View {
         val layoutInflater = LayoutInflater.from(context)
         val newView = layoutInflater.inflate(R.layout.search_list_item, parent, false)
+
+        val viewHolder = ViewHolder();
+        viewHolder.txtWord = newView.findViewById<TextView>(R.id.txtWord)
+        viewHolder.txtType = newView.findViewById<TextView>(R.id.txtType)
+        viewHolder.txtMeaning = newView.findViewById<TextView>(R.id.txtMeaning)
+
+        viewHolder.wordColumnIndex = cursor!!.getColumnIndexOrThrow(DictionaryEntryContract.COLUMN_WORD)
+        viewHolder.typeColumnIndex = cursor!!.getColumnIndexOrThrow(DictionaryEntryContract.COLUMN_TYPE)
+        viewHolder.meaningColumnIndex = cursor!!.getColumnIndexOrThrow(DictionaryEntryContract.COLUMN_MEANING)
+
+        newView.tag = viewHolder
+
         return newView
     }
 
     override fun bindView(view: View?, context: Context?, cursor: Cursor?) {
-        val txtWord = view?.findViewById<TextView>(R.id.txtWord)
-        val txtType = view?.findViewById<TextView>(R.id.txtType)
-        val txtMeaning = view?.findViewById<TextView>(R.id.txtMeaning)
+        val viewHolder = view!!.tag as ViewHolder
 
-        txtWord?.text = cursor?.getString(1)
-        txtType?.text = cursor?.getString(2)
-        txtMeaning?.text = cursor?.getString(3)
+        viewHolder.txtWord?.text = cursor?.getString(viewHolder.wordColumnIndex)
+        viewHolder.txtType?.text = cursor?.getString(viewHolder.typeColumnIndex)
+        viewHolder.txtMeaning?.text = cursor?.getString(viewHolder.meaningColumnIndex)
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
