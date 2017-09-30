@@ -1,11 +1,11 @@
 package com.mkhrussell.simpledictionary
 
-import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.util.Log
+import android.preference.PreferenceManager
+
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
@@ -15,6 +15,7 @@ class DatabaseHelper(private var mContext: Context) : SQLiteOpenHelper(mContext,
     companion object {
         private val DATABASE_NAME = "simple_dict.db"
         private val DATABASE_VERSION = 1
+        val DB_CREATED = "DB_CREATED"
     }
 
     private var mCreateDb = false
@@ -37,8 +38,17 @@ class DatabaseHelper(private var mContext: Context) : SQLiteOpenHelper(mContext,
             outputStream.flush()
 
             val  copiedDb = mContext.openOrCreateDatabase(DATABASE_NAME, 0, null)
+
+            val isDbCreated = copiedDb != null
+
             copiedDb.execSQL("PRAGMA user_version = $DATABASE_VERSION")
             copiedDb.close()
+
+            // DB_CREATED
+            val sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext)
+            val sharePrefEditor = sharedPref.edit()
+            sharePrefEditor.putBoolean(DB_CREATED, isDbCreated)
+            sharePrefEditor.apply()
         } catch (e: IOException) {
             e.printStackTrace()
             throw Error("copyDatabaseFromAssets: Error copying database.")
@@ -54,56 +64,35 @@ class DatabaseHelper(private var mContext: Context) : SQLiteOpenHelper(mContext,
 
     }
 
-    private fun copyDatabaseUsingThread(db: SQLiteDatabase?) {
-        Thread(Runnable { copyDatabaseFromAssets(db) }).start()
-    }
-
     override fun onCreate(db: SQLiteDatabase?) {
         mCreateDb = true
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        mUpgradeDb = true
+        if(newVersion > oldVersion) {
+            mUpgradeDb = true
+        }
     }
 
     override fun onOpen(db: SQLiteDatabase?) {
         if(mCreateDb) {
             mCreateDb = false
-            copyDatabaseUsingThread(db)
+            copyDatabaseFromAssets(db)
         }
 
         if(mUpgradeDb) {
             mUpgradeDb = false
-            copyDatabaseUsingThread(db)
-        }
-    }
-
-    fun addSomeDummyWords() {
-
-        val dummyWords = arrayOf("a", "apple", "b", "ball", "c", "cat", "d", "dog", "e", "eagle",
-                "f", "fox", "g", "gun", "h", "hat", "i", "ink", "j", "jug", "k", "kite", "l", "light")
-
-        val contentValues = ContentValues()
-        var id = 1
-
-        for(word in dummyWords) {
-            contentValues.put(DictionaryEntryContract.COLUMN_ID, id)
-            contentValues.put(DictionaryEntryContract.COLUMN_WORD, word)
-            contentValues.put(DictionaryEntryContract.COLUMN_TYPE, "noun")
-            contentValues.put(DictionaryEntryContract.COLUMN_MEANING, "This is an English word.")
-            this.writableDatabase.insert(DictionaryEntryContract.TABLE_NAME, null, contentValues)
-
-            id++
+            copyDatabaseFromAssets(db)
         }
     }
 
     fun getWords(wordPrefix: String = ""): Cursor {
-        if(wordPrefix.isBlank()) {
-            return readableDatabase.query(DictionaryEntryContract.TABLE_NAME, null,
+        return if(wordPrefix.isBlank()) {
+            readableDatabase.query(DictionaryEntryContract.TABLE_NAME, null,
                     null, null, null, null,
                     "${DictionaryEntryContract.COLUMN_ID} ASC")
         } else {
-            return readableDatabase.query(DictionaryEntryContract.TABLE_NAME, null,
+            readableDatabase.query(DictionaryEntryContract.TABLE_NAME, null,
                     "${DictionaryEntryContract.COLUMN_WORD} LIKE ?", arrayOf("$wordPrefix%"),
                     null, null, "${DictionaryEntryContract.COLUMN_ID} ASC")
         }
