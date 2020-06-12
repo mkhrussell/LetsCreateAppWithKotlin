@@ -67,13 +67,13 @@ class DictionaryActivity : AppCompatActivity() {
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState?.putString(LAST_SEARCH_WORD, mSearchQuery)
+        outState.putString(LAST_SEARCH_WORD, mSearchQuery)
     }
 
-    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
-        mSearchQuery = savedInstanceState?.getString(LAST_SEARCH_WORD) ?: ""
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        mSearchQuery = savedInstanceState.getString(LAST_SEARCH_WORD) ?: ""
         super.onRestoreInstanceState(savedInstanceState)
     }
 
