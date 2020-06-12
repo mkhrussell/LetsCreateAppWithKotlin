@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Simple Dictionary</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_search">Search</string>
+    <string name="action_search_hint">Search word</string>
+    <string name="dictionary_db_preparing">Preparing Database...</string>
+</resources>
