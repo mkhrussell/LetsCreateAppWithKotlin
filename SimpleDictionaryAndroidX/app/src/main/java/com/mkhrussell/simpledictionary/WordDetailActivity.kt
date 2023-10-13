@@ -6,10 +6,6 @@ import android.widget.TextView
 
 class WordDetailActivity : AppCompatActivity() {
 
-    companion object {
-        const val WORD_ID = "WORD_ID"
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_word_detail)

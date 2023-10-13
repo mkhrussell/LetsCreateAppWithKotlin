@@ -25,13 +25,15 @@ class SearchListAdapter(context: Context, cursor: Cursor) : CursorAdapter(contex
         val newView = layoutInflater.inflate(R.layout.search_list_item, parent, false)
 
         val viewHolder = ViewHolder()
-        viewHolder.txtWord = newView.findViewById<TextView>(R.id.txtWord)
-        viewHolder.txtType = newView.findViewById<TextView>(R.id.txtType)
-        viewHolder.txtMeaning = newView.findViewById<TextView>(R.id.txtMeaning)
+        viewHolder.txtWord = newView.findViewById(R.id.txtWord)
+        viewHolder.txtType = newView.findViewById(R.id.txtType)
+        viewHolder.txtMeaning = newView.findViewById(R.id.txtMeaning)
 
-        viewHolder.wordColumnIndex = cursor!!.getColumnIndexOrThrow(DictionaryEntryContract.COLUMN_WORD)
-        viewHolder.typeColumnIndex = cursor!!.getColumnIndexOrThrow(DictionaryEntryContract.COLUMN_TYPE)
-        viewHolder.meaningColumnIndex = cursor!!.getColumnIndexOrThrow(DictionaryEntryContract.COLUMN_MEANING)
+        cursor?.let {
+            viewHolder.wordColumnIndex = it.getColumnIndexOrThrow(DictionaryEntryContract.COLUMN_WORD)
+            viewHolder.typeColumnIndex = it.getColumnIndexOrThrow(DictionaryEntryContract.COLUMN_TYPE)
+            viewHolder.meaningColumnIndex = it.getColumnIndexOrThrow(DictionaryEntryContract.COLUMN_MEANING)
+        }
 
         newView.tag = viewHolder
 

@@ -3,9 +3,9 @@ package com.mkhrussell.simpledictionary
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
-import android.os.AsyncTask
 import android.os.Bundle
-import android.preference.PreferenceManager
+import android.os.Handler
+import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.widget.SearchView
@@ -14,15 +14,18 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.AdapterView
 import android.widget.ListView
-import java.lang.ref.WeakReference
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 class DictionaryActivity : AppCompatActivity() {
     companion object {
-        val TAG = "DictionaryActivity"
-        val LAST_SEARCH_WORD: String = "LAST_SEARCH_WORD"
+        private const val TAG = "DictionaryActivity"
     }
 
-    var mDbHelper: DatabaseHelper? = null
+    private val executor: ExecutorService = Executors.newSingleThreadExecutor()
+    private val handler = Handler(Looper.getMainLooper())
+
+    private var mDbHelper: DatabaseHelper? = null
     private var mSearchListAdapter: SearchListAdapter? = null
     private var mSearchQuery: String = ""
 
@@ -32,17 +35,32 @@ class DictionaryActivity : AppCompatActivity() {
         mSearchQuery = savedInstanceState?.getString(LAST_SEARCH_WORD) ?: ""
         mDbHelper = DatabaseHelper(applicationContext)
 
-        if(!isDbLoaded()) {
-            showLoadingUI()
-            LoadViewTask(this).execute()
-        } else {
+        showUI()
+    }
+
+    private fun showUI() {
+        if(isDbPopulated()) {
             showDictUI()
+            return
+        }
+
+        showLoadingUI()
+        executor.execute {
+            // Trigger populating database from asset file
+            if(mDbHelper?.readableDatabase?.isOpen == true) {
+                Log.d(TAG, "Database is okay.")
+                handler.post {
+                    if(isDbPopulated()) {
+                        showDictUI()
+                    }
+                }
+            }
         }
     }
 
-    private fun isDbLoaded(): Boolean {
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
-        return sharedPref.getBoolean(DatabaseHelper.DB_CREATED, false)
+    private fun isDbPopulated(): Boolean {
+        val sharedPref = getSharedPreferences(PREFS, MODE_PRIVATE)
+        return sharedPref.getBoolean(DB_CREATED, false)
     }
 
     private fun showLoadingUI() {
@@ -62,7 +80,7 @@ class DictionaryActivity : AppCompatActivity() {
         lstWords.adapter = mSearchListAdapter
         lstWords.onItemClickListener = AdapterView.OnItemClickListener { _, _, _, id ->
             val wordDetailIntent = Intent(applicationContext, WordDetailActivity::class.java)
-            wordDetailIntent.putExtra(WordDetailActivity.WORD_ID, "$id")
+            wordDetailIntent.putExtra(WORD_ID, "$id")
             startActivity(wordDetailIntent)
         }
     }
@@ -120,24 +138,5 @@ class DictionaryActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    private class LoadViewTask(activity: DictionaryActivity) : AsyncTask<Void, Void, Void>() {
-        private var mActivity = WeakReference<DictionaryActivity>(activity)
-
-        override fun doInBackground(vararg params: Void): Void? {
-            if(getActivityInstance()?.mDbHelper?.readableDatabase?.isOpen == true) {
-                Log.d(TAG, "Db is OK.")
-            }
-            return null
-        }
-
-        override fun onPostExecute(result: Void?) {
-            if(getActivityInstance()?.isDbLoaded() == true) {
-                getActivityInstance()?.showDictUI()
-            }
-        }
-
-        private fun getActivityInstance() = mActivity.get()
     }
 }

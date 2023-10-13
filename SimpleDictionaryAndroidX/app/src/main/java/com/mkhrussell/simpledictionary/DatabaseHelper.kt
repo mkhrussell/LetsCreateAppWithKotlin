@@ -4,18 +4,19 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.preference.PreferenceManager
+import androidx.appcompat.app.AppCompatActivity
 
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 
-class DatabaseHelper(private var mContext: Context) : SQLiteOpenHelper(mContext, DATABASE_NAME, null, DATABASE_VERSION) {
+class DatabaseHelper(
+    private var mContext: Context
+) : SQLiteOpenHelper(mContext, DATABASE_NAME, null, DATABASE_VERSION) {
     companion object {
-        private val DATABASE_NAME = "simple_dict.db"
-        private val DATABASE_VERSION = 1
-        val DB_CREATED = "DB_CREATED"
+        private const val DATABASE_NAME = "simple_dict.db"
+        private const val DATABASE_VERSION = 1
     }
 
     private var mCreateDb = false
@@ -30,7 +31,7 @@ class DatabaseHelper(private var mContext: Context) : SQLiteOpenHelper(mContext,
             outputStream = FileOutputStream(db?.path)
 
             val buffer = ByteArray(1024)
-            var length: Int = inputStream!!.read(buffer)
+            var length: Int = inputStream.read(buffer)
             while (length > 0) {
                 outputStream.write(buffer, 0, length)
                 length = inputStream.read(buffer)
@@ -45,7 +46,7 @@ class DatabaseHelper(private var mContext: Context) : SQLiteOpenHelper(mContext,
             copiedDb.close()
 
             // DB_CREATED
-            val sharedPref = PreferenceManager.getDefaultSharedPreferences(mContext)
+            val sharedPref = mContext.getSharedPreferences(PREFS, AppCompatActivity.MODE_PRIVATE)
             val sharePrefEditor = sharedPref.edit()
             sharePrefEditor.putBoolean(DB_CREATED, isDbCreated)
             sharePrefEditor.apply()
